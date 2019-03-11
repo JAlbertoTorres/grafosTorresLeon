@@ -64,6 +64,7 @@ public class grafo {
     }
     public void creaDotGraf(){
         Calendar hoy = Calendar.getInstance();
+        String path ="/home/beto/Documentos/CIC/DyAdAlgoritmos/Tareas/archivosgdf/";
         String nombre="grafo"+this.nombre+this.nodos.size()+hoy.getTime();
         this.nombre=nombre+".gdf";
         File archivo;
@@ -74,7 +75,7 @@ public class grafo {
         String key;
         if(this.dirigido){
             try{
-                archivo=new File(nombre+".gdf");
+                archivo=new File(path+nombre+".gdf");
                 fw=new FileWriter(archivo);
                 bw=new BufferedWriter(fw);
                 bw.write("nodedef>name VARCHAR\n");    
@@ -100,7 +101,7 @@ public class grafo {
         }
         else{
              try{
-                archivo=new File(nombre+".gdf");
+                archivo=new File(path+nombre+".gdf");
                 fw=new FileWriter(archivo);
                 bw=new BufferedWriter(fw);
 
