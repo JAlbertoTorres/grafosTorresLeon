@@ -132,8 +132,8 @@ public class grafo {
         new GraphvizJava( dot,png );
     }
     
-    public double getDeg(nodo n){
-        double deg=0;
+    public int getDeg(nodo n){
+        int deg=0;
         Iterator<String> llave = aristas.keySet().iterator();
         String key;
         while(llave.hasNext()){
@@ -268,47 +268,21 @@ public class grafo {
     public void crearGrafoBarabasi(int n, int g, boolean dirigido, boolean autociclo){
         grafo gB = new grafo();
         int aux;
-        double pR, deg;
+        double pR;
+        int degi, degj;
         Random rand = new Random();
         double x;
         for(int i=0; i<n; i++){
             gB.crearNodo(i);
         }
         float coin;
-        int i=0, a, b, k;
-        while(i<g){            
-           a=rand.nextInt(n); b=rand.nextInt(n);
-           if(a==b && !(autociclo)){
-               b=rand.nextInt(n);                                
-           }
-           k = rand.nextInt(10);
-           k+=1;            
-           coin =(float) 1/k;  
-           //System.out.println("Tratando de conectar los nodos a= "+a+" b="+b );
-           if(coin > 0.5){
-               i+=gB.crearArista(gB.nodos.get(a),gB.nodos.get(b), dirigido);              
-           }                   
-        }
-        /*for(int i= 0; i<g; i++){
-            for(int j=0; j<g; j++){
-                if(i==j && !autociclo){
-                    if(j<g-1){
-                        j+=1;
-                    }
-                    else{
-                        break;
-                    }
-                    
-                }
-                aux=gB.crearArista(gB.nodos.get(i),gB.nodos.get(j), dirigido);
-            }
-        }*/
-        
+        int i=0, a, b, k;        
         int j;
+        double frac;
         for(i = g; i<n; i++){            
             j = 0;
-            deg = gB.getDeg(gB.nodos.get(i));
-            while(j<n && deg<g){                
+            degi = gB.getDeg(gB.nodos.get(i));
+            while(j<n && degi<g){                
                  if(i==j && !autociclo){
                     if(j<n-1){
                         j+=1;
@@ -317,14 +291,16 @@ public class grafo {
                         break;
                     }
                 }
-                deg = gB.getDeg(gB.nodos.get(i));
-                pR= (double)1.0 - (deg/g);
+                degj = gB.getDeg(gB.nodos.get(j));
+                frac= (double) degj/g;
+                pR= (double)1.0 - frac;
                 x= rand.nextDouble();
-                //System.out.println("deg= "+ deg+ " pR= "+pR+" x= "+x+ " i= "+i+" j= "+j);               
+                //System.out.println("deg= "+ degj+ " pR= "+pR+" x= "+x+ " i= "+i+" j= "+j);               
                 if(pR>x){
                     aux=gB.crearArista(gB.nodos.get(i),gB.nodos.get(j), dirigido);
                 }
                 j++;
+                degi = gB.getDeg(gB.nodos.get(i));
             }
         }
         this.nodos = gB.nodos;
