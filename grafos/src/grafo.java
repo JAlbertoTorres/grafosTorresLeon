@@ -28,11 +28,16 @@ public class grafo {
         String nombre = "A"+num;        
         this.nodos.add(new nodo(nombre, num));        
     }
-     public void crearNodo(int num, double x, double y){
+    public void crearNodo(int num, double x, double y){
         String nombre = "A"+num;        
         this.nodos.add(new nodo(nombre, num, x, y));        
     }
-     
+    public void reiniciaNodos(){
+        int tam = this.getOrden();
+        for(int i=0; i<tam; i++){
+            this.nodos.get(i).setExp(false);
+        }
+    }     
     public int crearArista(nodo a, nodo b, boolean d){
         Arista ar1= new Arista(a,b);
         //Arista ar2= new Arista(b,a);
@@ -47,6 +52,8 @@ public class grafo {
             }
             else{
                 this.aristas.put(ar1Name,new Arista(a,b));        
+                a.addVecino(b);
+                b.addVecino(a);
                 return 1;
             }
         }
@@ -57,6 +64,7 @@ public class grafo {
             }
             else{
                 this.aristas.put(ar1Name, new Arista(a,b));        
+                a.addVecino(b);
                 return 1;
             }
         }
@@ -192,6 +200,16 @@ public class grafo {
         this.aristas = gE.aristas;
         this.dirigido = dirigido;
         this.nombre = "Erdos";
+        this.BFS(this.nodos.get(0));
+        grafo arbolDFS_I = new grafo();
+        arbolDFS_I.nombre= this.nombre +"DFS_I";
+        arbolDFS_I.DFS_I(this.nodos.get(0));
+        arbolDFS_I.creaDotGraf();
+        this.reiniciaNodos();
+        grafo arbolDFS_R = new grafo();
+        arbolDFS_R.nombre= this.nombre +"DFS_R";
+        arbolDFS_R.DFS_R(this.nodos.get(0));
+        arbolDFS_R.creaDotGraf();
     }
     
     public void crearGrafoGilbert(int n, float p, boolean dirigido, boolean autociclo){
@@ -225,6 +243,16 @@ public class grafo {
         this.aristas = gG.aristas; 
         this.dirigido = dirigido;
         this.nombre = "Gilbert";
+        this.BFS(this.nodos.get(0));
+        grafo arbolDFS_I = new grafo();
+        arbolDFS_I.nombre= this.nombre +"DFS_I";
+        arbolDFS_I.DFS_I(this.nodos.get(0));
+        arbolDFS_I.creaDotGraf();
+        this.reiniciaNodos();
+        grafo arbolDFS_R = new grafo();
+        arbolDFS_R.nombre= this.nombre +"DFS_R";
+        arbolDFS_R.DFS_R(this.nodos.get(0));
+        arbolDFS_R.creaDotGraf();
 
     }
     public double calculaDist(nodo a, nodo b){
@@ -264,6 +292,16 @@ public class grafo {
         this.aristas = gGeo.aristas; 
         this.dirigido = dirigido;
         this.nombre = "Geografico";
+        this.BFS(this.nodos.get(0));
+        grafo arbolDFS_I = new grafo();
+        arbolDFS_I.nombre= this.nombre +"DFS_I";
+        arbolDFS_I.DFS_I(this.nodos.get(0));
+        arbolDFS_I.creaDotGraf();
+        this.reiniciaNodos();
+        grafo arbolDFS_R = new grafo();
+        arbolDFS_R.nombre= this.nombre +"DFS_R";
+        arbolDFS_R.DFS_R(this.nodos.get(0));
+        arbolDFS_R.creaDotGraf();
     }
     public void crearGrafoBarabasi(int n, int g, boolean dirigido, boolean autociclo){
         grafo gB = new grafo();
@@ -307,6 +345,91 @@ public class grafo {
         this.aristas = gB.aristas; 
         this.dirigido = dirigido;
         this.nombre = "Barabasi";
-           
-    }    
+        this.BFS(this.nodos.get(0));
+        grafo arbolDFS_I = new grafo();
+        arbolDFS_I.nombre= this.nombre +"DFS_I";
+        arbolDFS_I.DFS_I(this.nodos.get(0));
+        arbolDFS_I.creaDotGraf();
+        this.reiniciaNodos();
+        grafo arbolDFS_R = new grafo();
+        arbolDFS_R.nombre= this.nombre +"DFS_R";
+        arbolDFS_R.DFS_R(this.nodos.get(0));
+        arbolDFS_R.creaDotGraf();
+        
+    }  
+    public void BFS(nodo s){ 
+        int i=0;
+        grafo arbolBFS = new grafo();
+        arbolBFS.nombre = this.nombre + "BFS";
+        int tam = this.getOrden();
+        int tamC, tamV; //El tamaño de la capa y el tamaño del arreglo de vecinos del nodo u
+        Boolean []descubiertos;
+        descubiertos = new Boolean[tam];       
+        for(i=0; i<tam; i++){
+            descubiertos[i]=false;
+        }
+        descubiertos[s.dato]=true;
+        i=0;
+        ArrayList<ArrayList<nodo>> capas = new ArrayList<ArrayList<nodo>>();
+        ArrayList<nodo> capa = new ArrayList<nodo> ();
+        ArrayList<nodo> capa2 = new ArrayList<nodo> ();
+        capa.clear();
+        capa.add(s);
+        capas.add(capa);
+        arbolBFS.crearNodo(s.getDat());              
+        int k=0;
+        while(!(capas.get(k).isEmpty())){            
+            capa2 = new ArrayList<nodo> ();
+            //System.out.println("tamanio de capa i=" +capas.get(k).size());
+            //System.out.println("tamanio de capa2=" +capa2.size());
+            tamC= capas.get(k).size();                                   
+            for(i=0; i<tamC; i++){
+                tamV = capas.get(k).get(i).getVecinos().size();
+                for(int j=0; j<tamV; j++){                    
+                    if(descubiertos[capas.get(k).get(i).getVecinos().get(j).getDat()]==false){
+                        descubiertos[capas.get(k).get(i).getVecinos().get(j).getDat()]=true;
+                        capa2.add(capas.get(k).get(i).getVecinos().get(j));
+                        arbolBFS.crearNodo(capas.get(k).get(i).getVecinos().get(j).getDat());
+                        arbolBFS.crearArista(capas.get(k).get(i), capas.get(k).get(i).getVecinos().get(j), this.dirigido);
+                    }
+                }                               
+            }
+            //System.out.println("tamanio de capa2=" +capa2.size());
+            capas.add(capa2);
+            k+=1;
+        }
+        arbolBFS.creaDotGraf();              
+    }
+    public void revisaVecino(nodo s, int n){
+        int tam = s.getVecinos().size();
+        if(n==tam-1){            
+            this.crearArista(s, s.getVecinos().get(n), this.dirigido);            
+        }
+        else{
+            if(s.getVecinos().get(n).getExp()==false){
+                this.crearArista(s, s.getVecinos().get(n), this.dirigido);
+                this.DFS_R(s.getVecinos().get(n));
+            }
+            revisaVecino(s,n+1);
+            
+        }              
+    }
+    public void DFS_R(nodo s){
+        this.crearNodo(s.getDat());
+        s.setExp(true);
+        this.revisaVecino(s, 0);        
+    }
+    public void DFS_I(nodo s){       
+        this.crearNodo(s.getDat());                
+        s.setExp(true);
+        int tamV;
+        tamV = s.getVecinos().size();        
+        for(int i=0; i< tamV; i++){
+            if(s.getVecinos().get(i).getExp()==false){
+                this.crearArista(s, s.getVecinos().get(i), this.dirigido);
+                this.DFS_I(s.getVecinos().get(i));
+            }
+        }
+    }
+    
 }
