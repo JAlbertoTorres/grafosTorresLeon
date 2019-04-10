@@ -3,20 +3,22 @@
  * @author beto
  */
 import java.util.ArrayList; 
-public class nodo {
+class nodo implements Comparable<nodo>{
     String nombre;
     int dato;
+    float peso;
     double posx;
     double posy;
-    ArrayList<nodo> vecinos;
+    ArrayList<nodo> vecinos;   
     Boolean explorado;
     
     public nodo(String n, int d){
         this.nombre = n;
         this.dato = d;
+        this.peso=1;
         this.posx = 0;
         this.posy = 0;
-        this.vecinos = new ArrayList<>();
+        this.vecinos = new ArrayList<>(0);
         this.explorado = false;
     }  
     
@@ -25,10 +27,14 @@ public class nodo {
         this.dato = d;
         this.posx = x;
         this.posy = y;
-        this.vecinos = new ArrayList<>();
+        this.peso=1;
+        this.vecinos = new ArrayList<>(0);
         this.explorado = false;
     } 
     
+    public void setPeso(float peso){
+        this.peso= peso;
+    }
     public void setPosx(double x){
         this.posx = x;
     }
@@ -52,6 +58,10 @@ public class nodo {
         return this.dato;
     }
     
+    public float getPeso(){
+        return this.peso;
+    }
+    
     public double getPosx(){
         return this.posx;
     }
@@ -70,5 +80,18 @@ public class nodo {
     
     public ArrayList<nodo> getVecinos(){
         return this.vecinos;
+    }     
+
+    @Override
+    public int compareTo(nodo n) {
+        if(this.getDat() > n.getDat()){
+            return 1;
+        }
+        else if(this.getDat()< n.getDat()){
+            return -1;
+        }
+        else{
+            return 0;
+        }        
     }
 }
