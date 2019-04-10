@@ -1,9 +1,8 @@
 import java.util.Scanner;
 public class grafosMain {
 
-
-    public static void main(String[] args) {      
-        //Random rand = new Random();                
+    public static void main(String[] args) {              
+        
         int op =0, numNodos=0;
         boolean d, a;
         while(op==0)
@@ -24,7 +23,7 @@ public class grafosMain {
         }
         if(op==4){
             menuBar(numNodos, d, a);
-        }           
+        } 
     }
     
         public static int menu(){
@@ -65,7 +64,7 @@ public class grafosMain {
                 System.out.println("Opcion no valida >:(");
                 return 0;
             }                   
-        }
+        }       
         public static boolean menuDirigido(){
             //Scanner input = new Scanner(System.in);
             int bien =0;
@@ -135,7 +134,13 @@ public class grafosMain {
                     Scanner input = new Scanner(System.in);
                     System.out.println("Ingrese el numero de aristas");
                     m = input.nextInt();
-                    int max = (nodos*(nodos-1))/2;
+                    int max=0;
+                    if(dir){
+                        max=(nodos*(nodos-1)) ;
+                    }
+                    else{
+                        max= (nodos*(nodos-1))/2;
+                    }
                     if(m>max || m<1){
                         System.out.println("Opcion no valida :(");
                     }
@@ -148,8 +153,9 @@ public class grafosMain {
             }
             grafo g = new grafo();
             g.crearGrafoErdos(nodos, m, dir, aut);
-            g.creaDotGraf();
+            g.creaDotGraf(false, true);            
             System.out.println("Se genero el archivo "+g.nombre);
+            menuDijkstra(g);
         }
                                     
         public static void menuGilbert(int nodos, boolean dir, boolean aut){
@@ -173,8 +179,9 @@ public class grafosMain {
             }
             grafo g = new grafo();
             g.crearGrafoGilbert(nodos, p, dir, aut);
-            g.creaDotGraf();
+            g.creaDotGraf(false, true);        
             System.out.println("Se genero el archivo "+g.nombre);
+            menuDijkstra(g);
         }
         public static void menuGeo(int nodos, boolean dir, boolean aut){
             int bien=0;
@@ -197,8 +204,9 @@ public class grafosMain {
             }
             grafo g = new grafo();
             g.crearGrafoGeo(nodos, r, dir, aut);
-            g.creaDotGraf();
+            g.creaDotGraf(false, true);
             System.out.println("Se genero el archivo "+g.nombre);
+            menuDijkstra(g);
         }
         public static void menuBar(int nodos, boolean dir, boolean aut){
             int bien=0;
@@ -220,7 +228,78 @@ public class grafosMain {
             }
             grafo g = new grafo();
             g.crearGrafoBarabasi(nodos, grado, dir, aut);
-            g.creaDotGraf();
+            g.creaDotGraf(false, true);
             System.out.println("Se genero el archivo "+g.nombre);
+            menuDijkstra(g);
         }    
+        public static void menuDijkstra(grafo g){
+            int bien1=0, bien2=0, bien3=0;
+            int op1=0, nodo=0;
+            float min=1.0f, max=10.0f;
+            if(g.getDir()){
+                while(bien1==0){
+                    try{
+                        Scanner input= new Scanner(System.in);
+                        System.out.println("Desea generar el arbol de caminos minimos con el algoritmo de Dijkstra?");             
+                        System.out.println("Ingrese el numero de opcion");
+                        System.out.println("0.- No");
+                        System.out.println("1.- Si");
+                        op1= input.nextInt();
+                            if(op1 < 0 || op1 >1){
+                                System.out.println("Opcion no valida :(");                    
+                            }
+                            else{
+                                bien1=1;
+                            }
+                        }catch(Exception e){
+                        System.out.println("Opcion no valida :(");                    
+                    }
+                }
+                if(op1==1){
+                    while(bien2==0){
+                        try{
+                            Scanner input2 = new Scanner(System.in);
+                            System.out.println("Ingrese el valor minimo para el valor del peso de las aristas\n(debe ser un flotante mayor o igual a 1)");
+                            min = input2.nextFloat();
+                            System.out.println("Ingrese el valor maximo para el valor del peso de las aristas\n(debe ser un flotante mayor al valor minimo)");
+                            max = input2.nextFloat();
+                            if(max < min || min <1.0f){
+                                System.out.println("Opcion no valida :(");
+                            }
+                            else{
+                                bien2=1;
+                            }
+                        }catch(Exception e){
+                            System.out.println("Opcion no valida :(");
+                        }
+                    }
+                    System.out.println("El grafo tiene "+ g.getOrden()+" nodos");
+                    while(bien3==0){
+                        try{
+                            Scanner input = new Scanner(System.in);                            
+                            System.out.println("En que nodo desea iniciar?");
+                            nodo = input.nextInt();
+                            if(nodo < 0 || nodo> g.getOrden()){
+                                System.out.println("Opcion no valida :(");
+                            }
+                            else{
+                                bien3=1;
+                            }
+                        }catch(Exception e){
+                            System.out.println("Opcion no valida :(");
+                        }
+                    }
+                    g.asignaPesos(min, max);
+                    g.Dijkstra(g.nodos.get(nodo));
+                }
+                else{
+                    System.out.println("No se generara el arbol de caminos minimos con base en el algoritmo de Dijkstra...");
+                }
+
+            }
+            else{
+                System.out.println("El grafo debe ser dirigido para aplicar el algoritmo de Dijkstra :(");
+            }
+        }
+   
 }
