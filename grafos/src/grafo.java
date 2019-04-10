@@ -6,24 +6,38 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.lang.Math;
+import java.util.PriorityQueue;
 
 public class grafo {
     public ArrayList<nodo> nodos;
     public HashMap<String,Arista> aristas;
     public boolean dirigido;
     public String nombre;
+    public String tipo;
+    public boolean Pesos;
     
     public grafo(){
         nodos = new ArrayList<nodo>();
         aristas = new HashMap<String,Arista>();
         dirigido = false;
+        Pesos = false;
     }
     public grafo(grafo g){
         nodos = g.nodos;
         aristas = g.aristas;
         dirigido = g.dirigido;
     }
-    
+    public void desconectarNodo(nodo s){
+        Iterator<String> llave = aristas.keySet().iterator();
+        String key;
+        while(llave.hasNext()){
+           key = llave.next();                
+           if( this.aristas.get(key).getA().getName() ==s.getName() ||this.aristas.get(key).getB().getName()==s.getName()){
+               this.aristas.remove(key);
+           }
+        }
+        
+    }
     public void crearNodo(int num){
         String nombre = "A"+num;        
         this.nodos.add(new nodo(nombre, num));        
@@ -31,20 +45,36 @@ public class grafo {
     public void crearNodo(int num, double x, double y){
         String nombre = "A"+num;        
         this.nodos.add(new nodo(nombre, num, x, y));        
-    }
+    }  
     public void reiniciaNodos(){
         int tam = this.getOrden();
         for(int i=0; i<tam; i++){
             this.nodos.get(i).setExp(false);
         }
-    }     
+    }
+    public nodo getNodo(int dato){
+        nodo n = null;
+        
+        for(int i=0; i<this.nodos.size(); i++){
+            if(this.nodos.get(i).getDat()==dato)
+                n= this.nodos.get(i);
+        }
+        return n;                
+    }
+    
+    public boolean getDir(){
+        return this.dirigido;
+    }
+    
+    public void setPesos(boolean v){
+        this.Pesos=v;
+    }
+    
     public int crearArista(nodo a, nodo b, boolean d){
         Arista ar1= new Arista(a,b);
         //Arista ar2= new Arista(b,a);
         String ar1Name= a.getName()+b.getName();
-        String ar2Name= b.getName()+a.getName();
-        
-               
+        String ar2Name= b.getName()+a.getName();                     
         if(!d){
             if(this.aristas.get(ar1Name)!=null||this.aristas.get(ar2Name)!=null){
                 //System.out.println("Esa arista en el grafo no dirigido ya existe");
@@ -70,11 +100,13 @@ public class grafo {
         }
         
     }
-    public void creaDotGraf(){
+    public void creaDotGraf(boolean Pesos, boolean NewName){
         Calendar hoy = Calendar.getInstance();
         String path ="/home/beto/Documentos/CIC/DyAdAlgoritmos/Tareas/archivosgdf/";
-        String nombre="grafo"+this.nombre+this.nodos.size()+hoy.getTime();
-        this.nombre=nombre+".gdf";
+        if(NewName){
+            String nombre="grafo"+this.nombre+this.nodos.size()+hoy.getTime();            
+            this.nombre = nombre;
+        }
         File archivo;
         Scanner sc;
         FileWriter fw;
@@ -86,14 +118,34 @@ public class grafo {
                 archivo=new File(path+nombre+".gdf");
                 fw=new FileWriter(archivo);
                 bw=new BufferedWriter(fw);
-                bw.write("nodedef>name VARCHAR\n");    
-                for(int i=0; i<this.nodos.size(); i++){
-                    bw.write(nodos.get(i).nombre+"\n");
+                bw.write("nodedef>name VARCHAR");    
+                if(Pesos){
+                    bw.write(", label VARCHAR\n");
+                    for(int i=0; i<this.nodos.size(); i++){
+                        bw.write(nodos.get(i).nombre+ ","+nodos.get(i).nombre +"("+nodos.get(i).getPeso()+")\n");
+                    }
                 }
-                bw.write("edgedef>node1 VARCHAR,node2 VARCHAR\n");
+                else{
+                    bw.write("\n");
+                    for(int i=0; i<this.nodos.size(); i++){
+                        bw.write(nodos.get(i).nombre+"\n");
+                    }
+                }                
+                bw.write("edgedef>node1 VARCHAR,node2 VARCHAR, directed BOOLEAN");
+                if(Pesos){
+                    bw.write(", weight DOUBLE\n");
+                }
+                else{
+                    bw.write("\n");
+                }
                 while(llave.hasNext()){
-                  key = llave.next();     
-                  bw.write(this.aristas.get(key).getA().getName()+","+this.aristas.get(key).getB().getName() +"\n");
+                  key = llave.next();
+                  if(Pesos){                
+                      bw.write(this.aristas.get(key).getA().getName()+","+this.aristas.get(key).getB().getName() + ", true," +this.aristas.get(key).getPeso() +"\n");
+                  }
+                  else{                
+                    bw.write(this.aristas.get(key).getA().getName()+","+this.aristas.get(key).getB().getName() +", true\n");
+                  }
 
                 }
                                 
@@ -113,15 +165,34 @@ public class grafo {
                 fw=new FileWriter(archivo);
                 bw=new BufferedWriter(fw);
 
-                bw.write("nodedef>name VARCHAR\n");    
-                for(int i=0; i<this.nodos.size(); i++){
-                    bw.write(nodos.get(i).nombre+"\n");
+                bw.write("nodedef>name VARCHAR");    
+                if(Pesos){
+                    bw.write(", label VARCHAR\n");
+                    for(int i=0; i<this.nodos.size(); i++){
+                        bw.write(nodos.get(i).nombre+ ","+nodos.get(i).nombre +"("+nodos.get(i).getPeso()+")\n");
+                    }
                 }
-                bw.write("edgedef>node1 VARCHAR,node2 VARCHAR\n");
+                else{
+                    bw.write("\n");
+                    for(int i=0; i<this.nodos.size(); i++){
+                        bw.write(nodos.get(i).nombre+"\n");
+                    }
+                }
+                bw.write("edgedef>node1 VARCHAR,node2 VARCHAR");
+                if(Pesos){
+                    bw.write(", weight DOUBLE\n");
+                }
+                else{
+                    bw.write("\n");
+                }
                 while(llave.hasNext()){
-                  key = llave.next();     
-                  bw.write(this.aristas.get(key).getA().getName()+","+this.aristas.get(key).getB().getName() +"\n");
-
+                    key = llave.next();     
+                      if(Pesos){                        
+                        bw.write(this.aristas.get(key).getA().getName()+","+this.aristas.get(key).getB().getName() + "," +this.aristas.get(key).getPeso() +"\n");
+                    }
+                    else{
+                      bw.write(this.aristas.get(key).getA().getName()+","+this.aristas.get(key).getB().getName() +"\n");
+                    }
                 }
                 bw.flush(); 
                 //this.dibujaGrafo(nombre);
@@ -200,16 +271,17 @@ public class grafo {
         this.aristas = gE.aristas;
         this.dirigido = dirigido;
         this.nombre = "Erdos";
+        this.tipo="Erdos";
         this.BFS(this.nodos.get(0));
         grafo arbolDFS_I = new grafo();
         arbolDFS_I.nombre= this.nombre +"DFS_I";
         arbolDFS_I.DFS_I(this.nodos.get(0));
-        arbolDFS_I.creaDotGraf();
+        arbolDFS_I.creaDotGraf(false, true);
         this.reiniciaNodos();
         grafo arbolDFS_R = new grafo();
         arbolDFS_R.nombre= this.nombre +"DFS_R";
         arbolDFS_R.DFS_R(this.nodos.get(0));
-        arbolDFS_R.creaDotGraf();
+        arbolDFS_R.creaDotGraf(false, true);
     }
     
     public void crearGrafoGilbert(int n, float p, boolean dirigido, boolean autociclo){
@@ -243,16 +315,17 @@ public class grafo {
         this.aristas = gG.aristas; 
         this.dirigido = dirigido;
         this.nombre = "Gilbert";
+        this.tipo = "Gilbert";
         this.BFS(this.nodos.get(0));
         grafo arbolDFS_I = new grafo();
         arbolDFS_I.nombre= this.nombre +"DFS_I";
         arbolDFS_I.DFS_I(this.nodos.get(0));
-        arbolDFS_I.creaDotGraf();
+        arbolDFS_I.creaDotGraf(false, true);
         this.reiniciaNodos();
         grafo arbolDFS_R = new grafo();
         arbolDFS_R.nombre= this.nombre +"DFS_R";
         arbolDFS_R.DFS_R(this.nodos.get(0));
-        arbolDFS_R.creaDotGraf();
+        arbolDFS_R.creaDotGraf(false, true);
 
     }
     public double calculaDist(nodo a, nodo b){
@@ -292,16 +365,17 @@ public class grafo {
         this.aristas = gGeo.aristas; 
         this.dirigido = dirigido;
         this.nombre = "Geografico";
+        this.tipo = "Geografico";
         this.BFS(this.nodos.get(0));
         grafo arbolDFS_I = new grafo();
         arbolDFS_I.nombre= this.nombre +"DFS_I";
         arbolDFS_I.DFS_I(this.nodos.get(0));
-        arbolDFS_I.creaDotGraf();
+        arbolDFS_I.creaDotGraf(false, true);
         this.reiniciaNodos();
         grafo arbolDFS_R = new grafo();
         arbolDFS_R.nombre= this.nombre +"DFS_R";
         arbolDFS_R.DFS_R(this.nodos.get(0));
-        arbolDFS_R.creaDotGraf();
+        arbolDFS_R.creaDotGraf(false, true);
     }
     public void crearGrafoBarabasi(int n, int g, boolean dirigido, boolean autociclo){
         grafo gB = new grafo();
@@ -317,7 +391,7 @@ public class grafo {
         int i=0, a, b, k;        
         int j;
         double frac;
-        for(i = g; i<n; i++){            
+        for(i = 0; i<n; i++){            
             j = 0;
             degi = gB.getDeg(gB.nodos.get(i));
             while(j<n && degi<g){                
@@ -345,16 +419,17 @@ public class grafo {
         this.aristas = gB.aristas; 
         this.dirigido = dirigido;
         this.nombre = "Barabasi";
+        this.tipo = "Barabasi";
         this.BFS(this.nodos.get(0));
         grafo arbolDFS_I = new grafo();
         arbolDFS_I.nombre= this.nombre +"DFS_I";
         arbolDFS_I.DFS_I(this.nodos.get(0));
-        arbolDFS_I.creaDotGraf();
+        arbolDFS_I.creaDotGraf(false, true);
         this.reiniciaNodos();
         grafo arbolDFS_R = new grafo();
         arbolDFS_R.nombre= this.nombre +"DFS_R";
         arbolDFS_R.DFS_R(this.nodos.get(0));
-        arbolDFS_R.creaDotGraf();
+        arbolDFS_R.creaDotGraf(false, true);
         
     }  
     public void BFS(nodo s){ 
@@ -377,7 +452,7 @@ public class grafo {
         capa.add(s);
         capas.add(capa);
         arbolBFS.crearNodo(s.getDat());              
-        int k=0;
+        int k=0, n1=0, n2=0;
         while(!(capas.get(k).isEmpty())){            
             capa2 = new ArrayList<nodo> ();
             //System.out.println("tamanio de capa i=" +capas.get(k).size());
@@ -385,12 +460,15 @@ public class grafo {
             tamC= capas.get(k).size();                                   
             for(i=0; i<tamC; i++){
                 tamV = capas.get(k).get(i).getVecinos().size();
+                n1=capas.get(k).get(i).getDat();
+                arbolBFS.crearNodo(n1);
                 for(int j=0; j<tamV; j++){                    
-                    if(descubiertos[capas.get(k).get(i).getVecinos().get(j).getDat()]==false){
-                        descubiertos[capas.get(k).get(i).getVecinos().get(j).getDat()]=true;
-                        capa2.add(capas.get(k).get(i).getVecinos().get(j));
-                        arbolBFS.crearNodo(capas.get(k).get(i).getVecinos().get(j).getDat());
-                        arbolBFS.crearArista(capas.get(k).get(i), capas.get(k).get(i).getVecinos().get(j), this.dirigido);
+                    n2 = capas.get(k).get(i).getVecinos().get(j).getDat();
+                    if(descubiertos[n2]==false){
+                        descubiertos[n2]=true;
+                        capa2.add(capas.get(k).get(i).getVecinos().get(j));                       
+                        arbolBFS.crearNodo(n2);
+                        arbolBFS.crearArista(arbolBFS.getNodo(n1), arbolBFS.getNodo(n2), this.dirigido);
                     }
                 }                               
             }
@@ -398,38 +476,115 @@ public class grafo {
             capas.add(capa2);
             k+=1;
         }
-        arbolBFS.creaDotGraf();              
+        arbolBFS.creaDotGraf(false, true);              
     }
     public void revisaVecino(nodo s, int n){
-        int tam = s.getVecinos().size();
-        if(n==tam-1){            
-            this.crearArista(s, s.getVecinos().get(n), this.dirigido);            
+        int tam = s.getVecinos().size(), n1=0;        
+        if(tam==0){
+            n=tam;
         }
         else{
-            if(s.getVecinos().get(n).getExp()==false){
-                this.crearArista(s, s.getVecinos().get(n), this.dirigido);
-                this.DFS_R(s.getVecinos().get(n));
+            if(n==tam-1){        
+                n1=s.getVecinos().get(n).getDat();
+                this.crearNodo(n1);
+                this.crearArista(this.getNodo(s.getDat()), this.getNodo(n1) , this.dirigido);            
             }
-            revisaVecino(s,n+1);
-            
-        }              
+            else{
+                if(s.getVecinos().get(n).getExp()==false){
+                    n1=s.getVecinos().get(n).getDat();
+                    this.crearNodo(n1);
+                    this.crearArista(this.getNodo(s.getDat()), this.getNodo(n1), this.dirigido);
+                    this.DFS_R(s.getVecinos().get(n));
+                }
+                revisaVecino(s,n+1);                               
+            }
+        }
     }
     public void DFS_R(nodo s){
         this.crearNodo(s.getDat());
         s.setExp(true);
         this.revisaVecino(s, 0);        
     }
+    
     public void DFS_I(nodo s){       
-        this.crearNodo(s.getDat());                
+        if(this.getNodo(s.getDat())==null){
+            this.crearNodo(s.getDat());                
+        }        
         s.setExp(true);
         int tamV;
         tamV = s.getVecinos().size();        
         for(int i=0; i< tamV; i++){
             if(s.getVecinos().get(i).getExp()==false){
-                this.crearArista(s, s.getVecinos().get(i), this.dirigido);
+                this.crearNodo(s.getVecinos().get(i).getDat());                
+                this.crearArista(this.getNodo(s.getDat()), this.getNodo(s.getVecinos().get(i).getDat()) , this.dirigido);
                 this.DFS_I(s.getVecinos().get(i));
             }
         }
     }
-    
+    public void asignaPesos(float min, float max){
+        Random rand= new Random();
+        float num;
+        Iterator<String> llave = aristas.keySet().iterator();
+        String key;
+        while(llave.hasNext()){
+            num = rand.nextFloat()*(max-min);
+            num+=min;
+            key = llave.next();     
+            this.aristas.get(key).setPeso(num);
+        }
+        this.creaDotGraf(true, false);
+      
+    }
+    public void iniciaDijkstra(nodo s, PriorityQueue <nodo> colaN){        
+        for (int i=0; i< this.getOrden(); i++){
+            if(!(this.nodos.get(i)==s)){
+                this.nodos.get(i).setPeso(999999);
+            }            
+        }
+        s.setPeso(0);
+        colaN.add(s);              
+    }
+    public void Dijkstra(nodo s){
+        grafo Dijkstra = new grafo();
+        Dijkstra.dirigido= true;
+        PriorityQueue <nodo> colaN = new PriorityQueue<>();     
+        HashMap<Integer,nodo> padres = new HashMap<>();
+        Dijkstra.setPesos(true);
+        this.iniciaDijkstra(s, colaN);
+        this.reiniciaNodos();
+        //colaN.add(s);        
+        float peso1, peso2, pesoA;
+        while(!colaN.isEmpty()){
+            nodo actual = colaN.remove();
+            Dijkstra.crearNodo(actual.getDat());
+            Dijkstra.getNodo(actual.getDat()).setPeso(actual.getPeso());            
+            for(int i=0 ; i< actual.getVecinos().size(); i++){                                                               
+                pesoA = this.aristas.get(actual.getName()+actual.getVecinos().get(i).getName()).getPeso();
+                peso1 = pesoA+actual.getPeso();
+                peso2 = actual.getVecinos().get(i).getPeso();
+                if(peso1 < peso2 ){
+                    padres.put(actual.getVecinos().get(i).getDat(), actual);                    
+                    actual.getVecinos().get(i).setPeso(peso1);                    
+                    if(!actual.getVecinos().get(i).getExp()){
+                        colaN.add(actual.getVecinos().get(i));
+                        actual.getVecinos().get(i).setExp(true);
+                        //System.out.println("Agregando nodo "+actual.getVecinos().get(i).getDat()+ " a la cola");
+                    }
+                }
+            }            
+            Dijkstra.nombre= this.tipo+"Dijkstra";
+        }
+        Iterator<Integer> llave = padres.keySet().iterator();
+        Integer key;
+        float peso, pesohijo, pesoPadre;        
+        while(llave.hasNext()){           
+           key = llave.next();           
+           pesohijo =Dijkstra.getNodo(key.intValue()).getPeso();
+           pesoPadre = padres.get(key).getPeso();
+           peso = pesohijo-pesoPadre;           
+           Dijkstra.crearArista(padres.get(key), Dijkstra.getNodo(key),true);           
+           Dijkstra.aristas.get(padres.get(key).getName()+Dijkstra.getNodo(key).getName()).setPeso(peso);
+        }
+        Dijkstra.creaDotGraf(true, true);
+    }    
 }
