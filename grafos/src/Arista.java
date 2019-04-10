@@ -2,22 +2,22 @@
  *
  * @author beto
  */
-public class Arista {
+class Arista implements Comparable<Arista>{
     nodo A;
     nodo B;
-    int peso;
+    float peso;
     boolean dir;
     
     public Arista(nodo a, nodo b){
           this.A = a;
           this.B = b;
-          this.peso = 0;
+          this.peso = 1.0f;
           this.dir = false;
     }
     public Arista(nodo a, nodo b, boolean d){
           this.A = a;
           this.B = b;
-          this.peso = 0;
+          this.peso = 1.0f;
           this.dir = d;
     }
     public void print(){
@@ -29,4 +29,24 @@ public class Arista {
     public nodo getB(){
         return this.B;
     }
+    
+    public void setPeso(float f){
+        this.peso=f;
+    }
+    
+    public float getPeso(){
+        return this.peso;
+    }
+    @Override
+    public int compareTo(Arista a) {
+        if(this.getPeso() > a.getPeso()){
+            return 1;
+        }
+        else if(this.getPeso()< a.getPeso()){
+            return -1;
+        }
+        else{
+            return 0;
+        }        
+    }    
 }
