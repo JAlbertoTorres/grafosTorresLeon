@@ -1,6 +1,7 @@
 import java.util.Scanner;
 public class grafosMain {
 
+
     public static void main(String[] args) {              
         
         int op =0, numNodos=0;
@@ -126,9 +127,41 @@ public class grafosMain {
             }
             return valor;
         }
+         public static boolean menuTrees(){
+            //Scanner input = new Scanner(System.in);
+            int bien =0;
+            boolean valor = false;
+            while(bien==0){
+            System.out.println("Desea generar los arboles BFS y DFS? (ingrese el numero de opcion)");
+            System.out.println("0.- No");
+            System.out.println("1.- Si");
+             try{
+                Scanner input = new Scanner(System.in);
+                int op = input.nextInt();
+                if(op<0 || op>1){
+                    System.out.println("Opcion no valida >:(");
+
+                }
+                else{
+                    if(op==0){
+                        valor= false;
+                        bien=1;
+                    }
+                    else{
+                        valor= true;
+                        bien=1;
+                    }
+                }
+            } catch(Exception e){
+                System.out.println("Opcion no valida >:(");            
+            }   
+            }
+            return valor;
+        }
         public static void menuErdos(int nodos, boolean dir, boolean aut){
             int bien=0;
             int m=0;
+            boolean trees= menuTrees();
             while(bien==0){
                 try{
                     Scanner input = new Scanner(System.in);
@@ -136,10 +169,10 @@ public class grafosMain {
                     m = input.nextInt();
                     int max=0;
                     if(dir){
-                        max=(nodos*(nodos-1)) ;
+                        max=(nodos*(nodos-1))+1 ;
                     }
                     else{
-                        max= (nodos*(nodos-1))/2;
+                        max= (nodos*(nodos-1))/2+1;
                     }
                     if(m>max || m<1){
                         System.out.println("Opcion no valida :(");
@@ -152,15 +185,17 @@ public class grafosMain {
                 }          
             }
             grafo g = new grafo();
-            g.crearGrafoErdos(nodos, m, dir, aut);
+            g.crearGrafoErdos(nodos, m, dir, aut, trees);
             g.creaDotGraf(false, true);            
-            System.out.println("Se genero el archivo "+g.nombre);
+            System.out.println("Se genero el archivo "+g.nombre);            
+            menuKruskal(g);            
             menuDijkstra(g);
         }
                                     
         public static void menuGilbert(int nodos, boolean dir, boolean aut){
             int bien=0;
             float p=0.0f;
+            boolean trees= menuTrees();
             while(bien==0){
                 try{
                     Scanner input = new Scanner(System.in);
@@ -178,14 +213,16 @@ public class grafosMain {
                 }                
             }
             grafo g = new grafo();
-            g.crearGrafoGilbert(nodos, p, dir, aut);
+            g.crearGrafoGilbert(nodos, p, dir, aut,trees);
             g.creaDotGraf(false, true);        
             System.out.println("Se genero el archivo "+g.nombre);
+            menuKruskal(g);
             menuDijkstra(g);
         }
         public static void menuGeo(int nodos, boolean dir, boolean aut){
             int bien=0;
             double r=0;
+            boolean trees= menuTrees();
             while(bien==0){
                 try{
                     Scanner input = new Scanner(System.in);
@@ -203,14 +240,16 @@ public class grafosMain {
                 }
             }
             grafo g = new grafo();
-            g.crearGrafoGeo(nodos, r, dir, aut);
+            g.crearGrafoGeo(nodos, r, dir, aut,trees);
             g.creaDotGraf(false, true);
             System.out.println("Se genero el archivo "+g.nombre);
+            menuKruskal(g);
             menuDijkstra(g);
         }
         public static void menuBar(int nodos, boolean dir, boolean aut){
             int bien=0;
             int grado=0;
+            boolean trees= menuTrees();
             while(bien==0){
                 try{
                     Scanner input = new Scanner(System.in);
@@ -227,9 +266,10 @@ public class grafosMain {
                 }
             }
             grafo g = new grafo();
-            g.crearGrafoBarabasi(nodos, grado, dir, aut);
+            g.crearGrafoBarabasi(nodos, grado, dir, aut,trees);
             g.creaDotGraf(false, true);
             System.out.println("Se genero el archivo "+g.nombre);
+            menuKruskal(g);
             menuDijkstra(g);
         }    
         public static void menuDijkstra(grafo g){
@@ -290,7 +330,7 @@ public class grafosMain {
                         }
                     }
                     g.asignaPesos(min, max);
-                    g.Dijkstra(g.nodos.get(nodo));
+                    g.Dijkstra(g.nodos.get(nodo));                    
                 }
                 else{
                     System.out.println("No se generara el arbol de caminos minimos con base en el algoritmo de Dijkstra...");
@@ -301,5 +341,56 @@ public class grafosMain {
                 System.out.println("El grafo debe ser dirigido para aplicar el algoritmo de Dijkstra :(");
             }
         }
-   
+    public static void menuKruskal(grafo g){
+        int bien1=0, bien2=0, bien3=0;
+        int op1=0, nodo=0;
+        float min=1.0f, max=10.0f;
+
+        while(bien1==0){
+            try{
+                Scanner input= new Scanner(System.in);
+                System.out.println("Desea generar el arbol de expansion minimos con los algoritmos de Kruskal y Prim?");             
+                System.out.println("Ingrese el numero de opcion");
+                System.out.println("0.- No");
+                System.out.println("1.- Si");
+                op1= input.nextInt();
+                    if(op1 < 0 || op1 >1){
+                        System.out.println("Opcion no valida :(");                    
+                    }
+                    else{
+                        bien1=1;
+                    }
+                }catch(Exception e){
+                System.out.println("Opcion no valida :(");                    
+            }
+        }
+        if(op1==1){
+            while(bien2==0){
+                try{
+                    Scanner input2 = new Scanner(System.in);
+                    System.out.println("Ingrese el valor minimo para el valor del peso de las aristas\n(debe ser un flotante mayor o igual a 1)");
+                    min = input2.nextFloat();
+                    System.out.println("Ingrese el valor maximo para el valor del peso de las aristas\n(debe ser un flotante mayor al valor minimo)");
+                    max = input2.nextFloat();
+                    if(max < min || min <1.0f){
+                        System.out.println("Opcion no valida :(");
+                    }
+                    else{
+                        bien2=1;
+                    }
+                }catch(Exception e){
+                    System.out.println("Opcion no valida :(");
+                }
+            }                    
+            g.asignaPesos(min, max);            
+            g.Prim();
+            g.kruskalD();
+            g.kruskalI();            
+        }
+        else{
+            System.out.println("No se generara el arbol de caminos minimos con base en los algoritmos de Kruskal y Prim");
+        }
+
+    }
+                       
 }
