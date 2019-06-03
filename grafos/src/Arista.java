@@ -20,6 +20,7 @@ class Arista implements Comparable<Arista>{
           this.peso = 1.0f;
           this.dir = d;
     }
+      
     public void print(){
         System.out.println("("+A.getName()+","+B.getName()+")");
     }
@@ -29,7 +30,12 @@ class Arista implements Comparable<Arista>{
     public nodo getB(){
         return this.B;
     }
-    
+    public void setA(nodo a){
+        this.A=a;
+    }
+    public void setB(nodo b){
+        this.B=b;
+    }
     public void setPeso(float f){
         this.peso=f;
     }
