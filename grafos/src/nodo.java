@@ -9,26 +9,43 @@ class nodo implements Comparable<nodo>{
     float peso;
     double posx;
     double posy;
-    ArrayList<nodo> vecinos;   
+    ArrayList<nodo> vecinos;
     Boolean explorado;
-    
+     
+    public nodo(){
+        this.nombre = "";
+        this.dato = 0;
+        this.peso=1;
+        this.posx = 0;
+        this.posy = 0;
+        this.vecinos = new ArrayList<>();      
+        this.explorado = false;
+    }
     public nodo(String n, int d){
         this.nombre = n;
         this.dato = d;
         this.peso=1;
         this.posx = 0;
         this.posy = 0;
-        this.vecinos = new ArrayList<>(0);
+        this.vecinos = new ArrayList<>();        
         this.explorado = false;
     }  
-    
+    public nodo(nodo n){
+        this.nombre = n.getName();
+        this.dato = n.getDat();
+        this.posx = n.getPosx();
+        this.posy = n.getPosy();
+        this.peso= n.getPeso();
+        this.vecinos = new ArrayList<>();        
+        this.explorado = false;
+    }
      public nodo(String n, int d, double x, double y){
         this.nombre = n;
         this.dato = d;
         this.posx = x;
         this.posy = y;
         this.peso=1;
-        this.vecinos = new ArrayList<>(0);
+        this.vecinos = new ArrayList<>();        
         this.explorado = false;
     } 
     
@@ -75,13 +92,20 @@ class nodo implements Comparable<nodo>{
     }
     
     public void addVecino(nodo vecino){
-        this.vecinos.add(vecino);
+        this.vecinos.add(vecino);       
+    }
+    
+    public void removeVecino(nodo vecino){
+        for(int i=0; i<this.vecinos.size(); i++){
+            if(vecino.getDat()==this.vecinos.get(i).getDat()){
+                this.vecinos.remove(i);             
+            }
+        }
     }
     
     public ArrayList<nodo> getVecinos(){
         return this.vecinos;
-    }     
-
+    }             
     @Override
     public int compareTo(nodo n) {
         if(this.getDat() > n.getDat()){
