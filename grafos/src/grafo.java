@@ -1,5 +1,6 @@
 import java.util.ArrayList; 
 import java.util.Random;
+import java.util.*;
 import java.io.*;
 import java.util.Scanner;
 import java.util.Calendar;
@@ -7,6 +8,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.lang.Math;
 import java.util.PriorityQueue;
+
 
 public class grafo {
     public ArrayList<nodo> nodos;
@@ -16,6 +18,7 @@ public class grafo {
     public String tipo;
     public boolean Pesos;
     
+
     public grafo(){
         nodos = new ArrayList<nodo>();
         aristas = new HashMap<String,Arista>();
@@ -27,6 +30,7 @@ public class grafo {
         aristas = g.aristas;
         dirigido = g.dirigido;
     }
+       
     public void desconectarNodo(nodo s){
         Iterator<String> llave = aristas.keySet().iterator();
         String key;
@@ -35,8 +39,7 @@ public class grafo {
            if( this.aristas.get(key).getA().getName() ==s.getName() ||this.aristas.get(key).getB().getName()==s.getName()){
                this.aristas.remove(key);
            }
-        }
-        
+        }        
     }
     public void crearNodo(int num){
         String nombre = "A"+num;        
@@ -46,10 +49,17 @@ public class grafo {
         String nombre = "A"+num;        
         this.nodos.add(new nodo(nombre, num, x, y));        
     }  
+    public void crearNodo(nodo n){
+        this.nodos.add(new nodo(n));
+    }
     public void reiniciaNodos(){
         int tam = this.getOrden();
+       // System.out.println("Se reiniciaran los "+tam+" nodos");
         for(int i=0; i<tam; i++){
             this.nodos.get(i).setExp(false);
+           /* if(!this.nodos.get(i).getExp()){
+                System.out.println("Se reinicio correctamente el nodo "+i);
+            }*/
         }
     }
     public nodo getNodo(int dato){
@@ -81,9 +91,12 @@ public class grafo {
                 return 0;
             }
             else{
-                this.aristas.put(ar1Name,new Arista(a,b));        
-                a.addVecino(b);
-                b.addVecino(a);
+                this.aristas.put(ar1Name,new Arista(a,b));
+                if(!a.getVecinos().contains(b)){
+                    a.addVecino(b);
+                }
+                if(!b.getVecinos().contains(a))
+                    b.addVecino(a);
                 return 1;
             }
         }
@@ -94,7 +107,8 @@ public class grafo {
             }
             else{
                 this.aristas.put(ar1Name, new Arista(a,b));        
-                a.addVecino(b);
+                if(!a.getVecinos().contains(b))
+                    a.addVecino(b);
                 return 1;
             }
         }
@@ -242,7 +256,7 @@ public class grafo {
         }        
         
     }
-    public void crearGrafoErdos(int n, int m, boolean dirigido, boolean autociclo){
+    public void crearGrafoErdos(int n, int m, boolean dirigido, boolean autociclo, boolean arboles){
         grafo gE = new grafo();
         Random rand = new Random();
         int i, a,b;
@@ -255,7 +269,7 @@ public class grafo {
         
         while(i<m){            
             a=rand.nextInt(n); b=rand.nextInt(n);
-            if(a==b && !(autociclo)){
+            while(a==b && !(autociclo)){
                 b=rand.nextInt(n);                                
             }
             k = rand.nextInt(10);
@@ -272,19 +286,21 @@ public class grafo {
         this.dirigido = dirigido;
         this.nombre = "Erdos";
         this.tipo="Erdos";
-        this.BFS(this.nodos.get(0));
-        grafo arbolDFS_I = new grafo();
-        arbolDFS_I.nombre= this.nombre +"DFS_I";
-        arbolDFS_I.DFS_I(this.nodos.get(0));
-        arbolDFS_I.creaDotGraf(false, true);
-        this.reiniciaNodos();
-        grafo arbolDFS_R = new grafo();
-        arbolDFS_R.nombre= this.nombre +"DFS_R";
-        arbolDFS_R.DFS_R(this.nodos.get(0));
-        arbolDFS_R.creaDotGraf(false, true);
+        if(arboles){
+            this.BFS(this.nodos.get(0));
+            grafo arbolDFS_I = new grafo();
+            arbolDFS_I.nombre= this.nombre +"DFS_I";
+            arbolDFS_I.DFS_I(this.nodos.get(0));
+            arbolDFS_I.creaDotGraf(false, true);
+            this.reiniciaNodos();
+            grafo arbolDFS_R = new grafo();
+            arbolDFS_R.nombre= this.nombre +"DFS_R";
+            arbolDFS_R.DFS_R(this.nodos.get(0));
+            arbolDFS_R.creaDotGraf(false, true);
+        }
     }
     
-    public void crearGrafoGilbert(int n, float p, boolean dirigido, boolean autociclo){
+    public void crearGrafoGilbert(int n, float p, boolean dirigido, boolean autociclo, boolean arboles){
            grafo gG = new grafo();
            Random rand = new Random();
            int k, aux;
@@ -316,16 +332,18 @@ public class grafo {
         this.dirigido = dirigido;
         this.nombre = "Gilbert";
         this.tipo = "Gilbert";
-        this.BFS(this.nodos.get(0));
-        grafo arbolDFS_I = new grafo();
-        arbolDFS_I.nombre= this.nombre +"DFS_I";
-        arbolDFS_I.DFS_I(this.nodos.get(0));
-        arbolDFS_I.creaDotGraf(false, true);
-        this.reiniciaNodos();
-        grafo arbolDFS_R = new grafo();
-        arbolDFS_R.nombre= this.nombre +"DFS_R";
-        arbolDFS_R.DFS_R(this.nodos.get(0));
-        arbolDFS_R.creaDotGraf(false, true);
+        if(arboles){
+            this.BFS(this.nodos.get(0));
+            grafo arbolDFS_I = new grafo();
+            arbolDFS_I.nombre= this.nombre +"DFS_I";
+            arbolDFS_I.DFS_I(this.nodos.get(0));
+            arbolDFS_I.creaDotGraf(false, true);
+            this.reiniciaNodos();
+            grafo arbolDFS_R = new grafo();
+            arbolDFS_R.nombre= this.nombre +"DFS_R";
+            arbolDFS_R.DFS_R(this.nodos.get(0));
+            arbolDFS_R.creaDotGraf(false, true);
+        }
 
     }
     public double calculaDist(nodo a, nodo b){
@@ -333,7 +351,7 @@ public class grafo {
         dist = Math.sqrt(Math.pow(a.getPosx()-b.getPosx(), 2)+ Math.pow(a.getPosy()-b.getPosy(), 2));
         return dist;
     }
-    public void crearGrafoGeo(int n, double r, boolean dirigido, boolean autociclo){
+    public void crearGrafoGeo(int n, double r, boolean dirigido, boolean autociclo, boolean arboles){
         grafo gGeo = new grafo();
         Random rand = new Random();
         int aux;
@@ -366,18 +384,20 @@ public class grafo {
         this.dirigido = dirigido;
         this.nombre = "Geografico";
         this.tipo = "Geografico";
-        this.BFS(this.nodos.get(0));
-        grafo arbolDFS_I = new grafo();
-        arbolDFS_I.nombre= this.nombre +"DFS_I";
-        arbolDFS_I.DFS_I(this.nodos.get(0));
-        arbolDFS_I.creaDotGraf(false, true);
-        this.reiniciaNodos();
-        grafo arbolDFS_R = new grafo();
-        arbolDFS_R.nombre= this.nombre +"DFS_R";
-        arbolDFS_R.DFS_R(this.nodos.get(0));
-        arbolDFS_R.creaDotGraf(false, true);
+        if(arboles){
+            this.BFS(this.nodos.get(0));
+            grafo arbolDFS_I = new grafo();
+            arbolDFS_I.nombre= this.nombre +"DFS_I";
+            arbolDFS_I.DFS_I(this.nodos.get(0));
+            arbolDFS_I.creaDotGraf(false, true);
+            this.reiniciaNodos();
+            grafo arbolDFS_R = new grafo();
+            arbolDFS_R.nombre= this.nombre +"DFS_R";
+            arbolDFS_R.DFS_R(this.nodos.get(0));
+            arbolDFS_R.creaDotGraf(false, true);
+        }
     }
-    public void crearGrafoBarabasi(int n, int g, boolean dirigido, boolean autociclo){
+    public void crearGrafoBarabasi(int n, int g, boolean dirigido, boolean autociclo, boolean arboles){
         grafo gB = new grafo();
         int aux;
         double pR;
@@ -420,16 +440,18 @@ public class grafo {
         this.dirigido = dirigido;
         this.nombre = "Barabasi";
         this.tipo = "Barabasi";
-        this.BFS(this.nodos.get(0));
-        grafo arbolDFS_I = new grafo();
-        arbolDFS_I.nombre= this.nombre +"DFS_I";
-        arbolDFS_I.DFS_I(this.nodos.get(0));
-        arbolDFS_I.creaDotGraf(false, true);
-        this.reiniciaNodos();
-        grafo arbolDFS_R = new grafo();
-        arbolDFS_R.nombre= this.nombre +"DFS_R";
-        arbolDFS_R.DFS_R(this.nodos.get(0));
-        arbolDFS_R.creaDotGraf(false, true);
+        if(arboles){
+            this.BFS(this.nodos.get(0));
+            grafo arbolDFS_I = new grafo();
+            arbolDFS_I.nombre= this.nombre +"DFS_I";
+            arbolDFS_I.DFS_I(this.nodos.get(0));
+            arbolDFS_I.creaDotGraf(false, true);
+            this.reiniciaNodos();
+            grafo arbolDFS_R = new grafo();
+            arbolDFS_R.nombre= this.nombre +"DFS_R";
+            arbolDFS_R.DFS_R(this.nodos.get(0));
+            arbolDFS_R.creaDotGraf(false, true);
+        }
         
     }  
     public void BFS(nodo s){ 
@@ -532,8 +554,7 @@ public class grafo {
             key = llave.next();     
             this.aristas.get(key).setPeso(num);
         }
-        this.creaDotGraf(true, false);
-      
+        this.creaDotGraf(true, false);     
     }
     public void iniciaDijkstra(nodo s, PriorityQueue <nodo> colaN){        
         for (int i=0; i< this.getOrden(); i++){
@@ -586,5 +607,243 @@ public class grafo {
            Dijkstra.aristas.get(padres.get(key).getName()+Dijkstra.getNodo(key).getName()).setPeso(peso);
         }
         Dijkstra.creaDotGraf(true, true);
-    }    
+    }
+    public Set findSet(ArrayList <Set> partes, nodo conj){
+        int index=0;
+        for(int i=0; i<partes.size(); i++){
+            if(partes.get(i).contains(conj)){
+                index=i;
+            }
+        }
+        return partes.get(index);
+    }
+    
+    public void kruskalD(){
+       grafo arbolMin = new grafo();
+       arbolMin.setPesos(true);
+       this.reiniciaNodos();
+       ArrayList <Set> parts = new ArrayList<>();
+       PriorityQueue <Arista> colaA = new PriorityQueue<>();
+       Iterator<String> llave = aristas.keySet().iterator();
+       String key;
+       float pesoT=0; 
+       for(int i=0; i<this.getOrden(); i++){
+           Set <nodo>vertex=new HashSet<>();
+           vertex.add(this.nodos.get(i));
+           parts.add(vertex);
+       }
+       while(llave.hasNext()){          
+            key = llave.next();     
+            colaA.add(this.aristas.get(key));
+       }
+       while(!colaA.isEmpty()){
+           Arista actual = colaA.remove();
+           //Lo primero es encontrar los conjuntos donde estan los nodos A y B de la arista
+           Set <nodo> setA = findSet(parts,actual.getA());
+           Set <nodo> setB = findSet(parts,actual.getB());
+           //System.out.println("Se encontraron los conjuntos A{"+setA+"} y B{"+setB+"}");
+           if(setA != setB){
+               //Agregamos los dos nodos A y B al arbol de expansion mínima
+               if(arbolMin.getNodo(actual.getA().getDat())==null){
+                   arbolMin.crearNodo(actual.getA().getDat());
+               }
+               if(arbolMin.getNodo(actual.getB().getDat())==null){
+                   arbolMin.crearNodo(actual.getB().getDat());               
+               }               
+               arbolMin.crearArista(actual.getA(), actual.getB(), actual.dir);
+               arbolMin.aristas.get(actual.getA().getName()+actual.getB().getName()).setPeso(actual.getPeso());
+               //Ahora modificamos el conjunto parts con base en A y B               
+               parts.remove(setA);               
+               parts.remove(setB);               
+               setA.addAll(setB);               
+               parts.add(setA);
+               pesoT+=actual.getPeso();
+           }
+       }
+       System.out.println("El peso del arbol de expansion minima usando el algoritmo de Kruscal es de -> "+pesoT);
+       arbolMin.nombre= this.tipo+"kruskalD";
+       arbolMin.creaDotGraf(true, true);       
+    }
+    public int isConectedToManyN(nodo n){
+        int k=0;
+        boolean conect=false;
+        PriorityQueue <nodo> colaN = new PriorityQueue<>();
+        colaN.add(n);                
+        n.setExp(true);               
+        k++;                
+        while(!colaN.isEmpty()){
+            nodo actual = colaN.remove();                              
+            for(int i=0 ; i< actual.getVecinos().size(); i++){                                                                                               
+                if(!actual.getVecinos().get(i).getExp()){
+                    colaN.add(actual.getVecinos().get(i));
+                    actual.getVecinos().get(i).setExp(true);                                        
+                    k++;                
+                }                
+            }
+        }                       
+        return k;
+    }
+    public boolean isConected(){
+        int k=0;
+        boolean conect=false;
+        PriorityQueue <nodo> colaN = new PriorityQueue<>();
+        colaN.add(this.getNodo(0));                
+        this.getNodo(0).setExp(true);               
+        k++;                
+        while(!colaN.isEmpty()){
+            nodo actual = colaN.remove();                              
+            for(int i=0 ; i< actual.getVecinos().size(); i++){                                                                                               
+                if(!actual.getVecinos().get(i).getExp()){
+                    colaN.add(actual.getVecinos().get(i));
+                    actual.getVecinos().get(i).setExp(true);                                        
+                    k++;                
+                }                
+            }
+        }        
+        if(k==this.getOrden()){           
+            conect=true;
+        }        
+        return conect;
+    }
+    public void borraArista(nodo a, nodo b, boolean d){
+        this.aristas.remove(a.getName()+b.getName());        
+        if(d){
+            a.removeVecino(b);            
+        }
+        else{                   
+            a.removeVecino(b);
+            b.removeVecino(a);        
+        }        
+    }
+    public float calculaPeso(){
+        float p=0;
+        Iterator<String> llave = aristas.keySet().iterator();
+        String key;
+        while(llave.hasNext()){
+           key = llave.next();                           
+           p+= this.aristas.get(key).getPeso();
+        } 
+        return p;
+    }
+    public grafo copyGrafo(grafo g){
+        grafo nuevo = new grafo();
+        Iterator<String> llave = g.aristas.keySet().iterator();
+        llave = g.aristas.keySet().iterator();
+        String key;        
+        for(int i =0; i<g.getOrden(); i++){
+            nuevo.crearNodo(i);
+        }
+        while(llave.hasNext()){          
+             key = llave.next();     
+             nuevo.crearArista(nuevo.getNodo(g.aristas.get(key).getA().getDat()), nuevo.getNodo(g.aristas.get(key).getB().getDat()), g.dirigido);             
+             nuevo.aristas.get(key).setPeso(g.aristas.get(key).getPeso());
+        }
+        
+        return nuevo;
+    }
+    public void kruskalI(){
+        grafo arbolMin = new grafo();                
+        PriorityQueue <Arista> colaA = new PriorityQueue<>();
+        Stack <Arista> colaAInv = new Stack<>();                     
+        String key;
+        float pesoT;
+        Random rand = new Random();
+        int b=rand.nextInt(this.getOrden()); 
+        int max =this.isConectedToManyN(this.getNodo(b));
+        arbolMin= copyGrafo(this);
+        arbolMin.reiniciaNodos();                    
+        Iterator<String> llave = arbolMin.aristas.keySet().iterator();        
+        while(llave.hasNext()){          
+             key = llave.next();     
+             colaA.add(arbolMin.aristas.get(key));
+        }
+       
+        while(!colaA.isEmpty()){            
+            colaAInv.push(colaA.remove());
+        }        
+        int conected ;
+        while(!colaAInv.isEmpty()){
+            Arista actual =colaAInv.pop();                                    
+            arbolMin.borraArista(actual.getA(), actual.getB(), actual.dir);                                    
+            arbolMin.reiniciaNodos();
+            conected = arbolMin.isConectedToManyN(arbolMin.getNodo(b));
+            if(conected!=max){                
+                //Agregamos la arista que acabamos de borrar, pues se desconectaria el grafo                
+                arbolMin.crearArista(actual.getA(), actual.getB(), actual.dir);
+                arbolMin.aristas.get(actual.getA().getName()+actual.getB().getName()).setPeso(actual.getPeso());
+                if(actual.dir){
+                    arbolMin.getNodo(actual.getA().getDat()).addVecino(actual.getB());
+                }
+                else{
+                    arbolMin.getNodo(actual.getA().getDat()).addVecino(actual.getB());
+                    arbolMin.getNodo(actual.getB().getDat()).addVecino(actual.getA());
+                }                                
+            }                       
+        }
+        pesoT=arbolMin.calculaPeso();
+        System.out.println("El peso del arbol de expansion minima usando el algoritmo de Kruscal Inverso es de -> "+pesoT);
+        arbolMin.nombre= this.tipo+"kruskalInv";
+        arbolMin.creaDotGraf(true, true);      
+    }
+    public void Prim(){        
+        grafo arbolMin = new grafo();
+        arbolMin.dirigido= this.dirigido;                
+        PriorityQueue <Arista> colaA = new PriorityQueue<>();                    
+        String  nombreA, nombreB;
+        arbolMin.setPesos(true);
+        int ind;
+        this.reiniciaNodos(); 
+        Random rand = new Random();
+        //Este metodo requiere seleccionar un nodo aleatorio para iniciar
+        int b=rand.nextInt(this.getOrden()); 
+        int max =this.isConectedToManyN(this.getNodo(b));        
+        
+        arbolMin.crearNodo(this.getNodo(b).getDat());        
+        while((int)arbolMin.isConectedToManyN(arbolMin.getNodo(b))!=max){                           
+            arbolMin.reiniciaNodos();            
+            ind=0;
+            colaA.clear();
+            //debemos buscar en los nodos adyacentes a los nodos que forman parte del arbol 
+            //es decir, tomamos todas las aristas salientes del arbol minimo incompleto
+            for(int i=0;i<arbolMin.getOrden(); i++){            
+                nodo n = arbolMin.nodos.get(i);                               
+                for(int j=0; j<this.getNodo(n.getDat()).getVecinos().size(); j++){                                        
+                    nombreA= arbolMin.nodos.get(i).getName();
+                    nombreB= this.getNodo(n.getDat()).getVecinos().get(j).getName();
+                    if(this.aristas.get(nombreA+nombreB)!=null){
+                        colaA.add(this.aristas.get(nombreA+nombreB));
+                        
+                    }
+                    else{
+                        colaA.add(this.aristas.get(nombreB+nombreA));                        
+                    }
+                }                
+            }
+            //Ahora, revisamos las aristas con menor peso, pero solo añadimos una a la vez, para buscar de nuevo
+            //en una siguiente iteracion con el arbol actualizado
+            //Este codigo esta pensado para grafos no dirigidos, por lo tanto, se comprueban las aristas con (A,B) o (B,A)            
+            while(ind==0 && !colaA.isEmpty()){
+                Arista actual=colaA.remove();                
+                if(arbolMin.getNodo(actual.getB().getDat())==null){
+                    arbolMin.crearNodo(actual.getB().getDat());
+                    arbolMin.crearArista(arbolMin.getNodo(actual.getA().getDat()),arbolMin.getNodo(actual.getB().getDat()) , this.dirigido);
+                    arbolMin.aristas.get(actual.getA().getName()+actual.getB().getName()).setPeso(actual.getPeso());
+                    ind++;
+                }
+                else{
+                    if(arbolMin.getNodo(actual.getA().getDat())==null){
+                        arbolMin.crearNodo(actual.getA().getDat());
+                        arbolMin.crearArista(arbolMin.getNodo(actual.getB().getDat()),arbolMin.getNodo(actual.getA().getDat()) , this.dirigido);
+                        arbolMin.aristas.get(actual.getB().getName()+actual.getA().getName()).setPeso(actual.getPeso());
+                        ind++;
+                    }
+                }
+            }
+        }
+        
+        arbolMin.nombre= this.tipo+"Prim";
+        float pesoT= arbolMin.calculaPeso();
+        System.out.println("El peso del arbol de expansion minima usando el algoritmo de Prim es de -> "+pesoT);
+        arbolMin.creaDotGraf(true, true);                
+    }
 }
